@@ -170,9 +170,9 @@ class ChatPage extends StatelessWidget {
           ),
           // 投稿一覧表示
           Expanded(                       
-            child: FutureBuilder<QuerySnapshot>(
+            child: StreamBuilder<QuerySnapshot>(
               // 投稿一覧取得機能
-              future: FirebaseFirestore.instance.collection('posts').orderBy('date').get(),
+              stream: FirebaseFirestore.instance.collection('posts').orderBy('date').snapshots(),
               // 投稿一覧表示機能
               builder: (context, snapshot) {
                 // データが取得できた場合
