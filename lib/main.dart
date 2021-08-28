@@ -158,8 +158,41 @@ class ChatPage extends StatelessWidget {
           ),
         ],
       ),
-      body: Center(
-        child: Text('ログイン情報：${user.email}'),
+      body: Column(
+        children: <Widget>[
+          Container(
+            padding: EdgeInsets.all(8),
+            child: Text('ログイン情報：${user.email}'),
+          ),
+          Expanded(                       
+            child: FutureBuilder<QuerySnapshot>(
+              future: FirebaseFirestore.instance.collection('posts').orderBy('date').get(),
+              builder: (context, snapshot) {
+                // データが取得できた場合
+                if (snapshot.hasData) {
+                  final List<DocumentSnapshot> documents = snapshot.data!.docs;
+                  return ListView(
+                    children: documents.map((document) {
+                      return Card(
+                        child: ListTile(
+                          title: Text(document['text']),
+                          subtitle: Text(document['email']),
+                        ),
+                      );
+                    }).toList(),
+                  );
+
+                }
+                // データが読み込み中の場合
+                return Center(
+                  child: Text('読込中...'),
+                );
+
+              },
+
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
