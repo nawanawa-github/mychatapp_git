@@ -63,29 +63,31 @@ class _LoginPageState extends State<LoginPage> {
                   });
                 },
               ),
+              // ログインメッセージを表示
               Container(
                 padding: EdgeInsets.all(8),
-                // メッセージを表示
                 child: Text(infoText),
               ),
+              // ユーザー登録ボタン
               Container(
                 width: double.infinity,
-                // ユーザー登録ボタン
                 child: ElevatedButton(
                   child: Text('ユーザー登録'),
                   onPressed: () async {
                     try {
+                      // ユーザ登録機能
                       final FirebaseAuth auth = FirebaseAuth.instance;
                       final result = await auth.createUserWithEmailAndPassword(
                         email: email,
                         password: password,
                       );
+                      // 画面遷移機能
                       await Navigator.of(context).pushReplacement(
                         MaterialPageRoute(builder: (context) {
-                          // return ChatPage();
                           return ChatPage(result.user!);
                         }),
                       );
+                      // エラー機能
                     } catch (e) {
                       setState(() {
                         infoText = "登録に失敗しました：${e.toString()}";
@@ -95,9 +97,9 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 8),
+              // ログイン登録ボタン
               Container(
                 width: double.infinity,
-                // ログイン登録ボタン
                 child: OutlinedButton(
                   child: Text('ログイン'),
                   onPressed: () async {
@@ -135,6 +137,7 @@ class _LoginPageState extends State<LoginPage> {
 
 // チャット画面用Widget
 class ChatPage extends StatelessWidget {
+  // ログイン画面から渡されたデータ
   ChatPage(this.user);
   final User user;
   @override
@@ -160,13 +163,17 @@ class ChatPage extends StatelessWidget {
       ),
       body: Column(
         children: <Widget>[
+          // ログイン情報表示
           Container(
             padding: EdgeInsets.all(8),
             child: Text('ログイン情報：${user.email}'),
           ),
+          // 投稿一覧表示
           Expanded(                       
             child: FutureBuilder<QuerySnapshot>(
+              // 投稿一覧取得機能
               future: FirebaseFirestore.instance.collection('posts').orderBy('date').get(),
+              // 投稿一覧表示機能
               builder: (context, snapshot) {
                 // データが取得できた場合
                 if (snapshot.hasData) {
@@ -177,6 +184,7 @@ class ChatPage extends StatelessWidget {
                         child: ListTile(
                           title: Text(document['text']),
                           subtitle: Text(document['email']),
+                          // 投稿削除機能
                           trailing: document['email'] == user.email ? IconButton(
                             icon: Icon(Icons.delete),
                             onPressed: () async {
@@ -187,19 +195,17 @@ class ChatPage extends StatelessWidget {
                       );
                     }).toList(),
                   );
-
                 }
                 // データが読み込み中の場合
                 return Center(
                   child: Text('読込中...'),
                 );
-
               },
-
             ),
           ),
         ],
       ),
+      // 投稿画面遷移ボタン
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () async {
@@ -217,6 +223,7 @@ class ChatPage extends StatelessWidget {
 
 // 投稿画面用Widget
 class AddPostPage extends StatefulWidget {
+  // チャット画面から渡されたデータ
   AddPostPage(this.user);
   final User user;
   @override
@@ -237,6 +244,7 @@ class _AddPostPageState extends State<AddPostPage> {
           child:  Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
+              // メッセージ入力ボタン
               TextFormField(
                 decoration: InputDecoration(labelText: '投稿メッセージ'),
                 keyboardType: TextInputType.multiline,
@@ -248,21 +256,24 @@ class _AddPostPageState extends State<AddPostPage> {
                 },
               ),
               const SizedBox(height: 8),
+              // 投稿ボタン
               Container(
                 width: double.infinity,
                 child: ElevatedButton(
                   child: Text('投稿'),
                   onPressed: () async {
-                    // 現在の日時
+                    // 現在の日時取得
                     final date = DateTime.now().toLocal().toIso8601String();
-                    // AddPostPageのデータを参照
+                    // ユーザ情報のデータを参照
                     final email = widget.user.email;
+                    // データベースに保存機能
                     await FirebaseFirestore.instance.collection('posts').doc().set({
                       'text':messageText,
                       'email':email,
                       'date':date,
                     });
-                  Navigator.of(context).pop();
+                    // 画面遷移機能
+                    Navigator.of(context).pop();
                   },
                 ),
               ),
